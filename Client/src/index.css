@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Base Background and Foreground */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 222.2 84% 4.9%; /* Slate-950 */
+
+    /* Cards and Popovers */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Brand / Primary Accent (Soft Blue) */
+    --primary: 221.2 83.2% 53.3%; /* #2563EB */
+    --primary-foreground: 210 40% 98%;
+
+    /* Secondary / UI elements (Very light gray) */
+    --secondary: 210 40% 96.1%; /* #F1F5F9 */
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    /* Muted states */
+    --muted: 210 40% 96.1%; /* #F1F5F9 */
+    --muted-foreground: 215.4 16.3% 46.9%; /* Slate-500 */
+
+    /* Accents (Soft Blue hover backgrounds, etc.) */
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    /* Statuses: Success, Warning, Danger (Destructive) */
+    --destructive: 0 84.2% 60.2%; /* #EF4444 */
+    --destructive-foreground: 210 40% 98%;
+    --success: 142.1 76.2% 36.3%; /* #16A34A */
+    --success-foreground: 355.6 100% 99%;
+    --warning: 38 92% 50%; /* #D97706 */
+    --warning-foreground: 48 96% 96%;
+
+    /* Borders and Input fields */
+    --border: 214.3 31.8% 91.4%; /* #E2E8F0 */
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+
+    /* Radius (Subtle and professional, no giant corners) */
+    --radius: 0.375rem; /* 6px */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-[#F8FAFC] text-foreground antialiased font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom minimal scrollbar to keep layout clean and professional */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E2E8F0;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #CBD5E1;
+}
+
+/* Subtle, smooth transitions */
+.transition-all-calm {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
