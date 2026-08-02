@@ -130,7 +130,7 @@ export default function LandingPage() {
       }
     } catch (err) {
       console.error("Login failed:", err);
-      alert("Sign in failed. Make sure backend is running on port 5001.");
+      alert(`Sign in failed. Make sure your backend is running and reachable at: ${API_BASE}\n\nError: ${err.message}`);
     } finally {
       setSyncing(false);
       setShowGoogleModal(false);
