@@ -5,12 +5,14 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export async function syncAttendanceToBackend(logs = []) {
   try {
     const user = JSON.parse(localStorage.getItem("sempilot_user") || "null");
     const userId = user?.id || "default-user";
 
-    const res = await fetch("http://localhost:5001/api/v1/attendance/sync", {
+    const res = await fetch(`${API_BASE}/api/v1/attendance/sync`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ logs, userId })
@@ -76,7 +78,7 @@ export async function syncFullDataToBackend(setupData, attendanceLogs) {
       }))
     };
 
-    const res = await fetch("http://localhost:5001/api/v1/semester/import", {
+    const res = await fetch(`${API_BASE}/api/v1/semester/import`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)

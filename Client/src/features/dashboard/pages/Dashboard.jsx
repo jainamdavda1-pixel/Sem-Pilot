@@ -27,6 +27,8 @@ import { cn, syncAttendanceToBackend } from "../../../shared/utils/utils";
 import { ImportPastAttendanceModal } from "../components/ImportPastAttendanceModal";
 import { useAcademicData } from "../../../shared/context/AcademicDataContext";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export default function Dashboard() {
   const navigate = useNavigate();
   
@@ -84,7 +86,7 @@ export default function Dashboard() {
       const userId = userObj?.id || "default-user";
 
       // First, fetch existing semesters to retrieve ID
-      const semestersRes = await fetch(`http://localhost:5001/api/v1/semesters?userId=${userId}`);
+      const semestersRes = await fetch(`${API_BASE}/api/v1/semesters?userId=${userId}`);
       if (semestersRes.ok) {
         const semestersData = await semestersRes.json();
         const semestersList = semestersData.data || [];
@@ -92,7 +94,7 @@ export default function Dashboard() {
         if (semestersList.length > 0) {
           // If semester exists, update it
           const semId = semestersList[0].id;
-          await fetch(`http://localhost:5001/api/v1/semesters/${semId}`, {
+          await fetch(`${API_BASE}/api/v1/semesters/${semId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -102,7 +104,7 @@ export default function Dashboard() {
           });
         } else {
           // If no semester exists, create one
-          await fetch("http://localhost:5001/api/v1/semesters", {
+          await fetch(`${API_BASE}/api/v1/semesters`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -575,7 +577,7 @@ function DashboardAssignmentsWidget({ navigate, todayDateString, userId }) {
   React.useEffect(() => {
     const fetchAssignments = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/v1/assignments?userId=${userId}`);
+        const res = await fetch(`${API_BASE}/api/v1/assignments?userId=${userId}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           setAssignments(data.data);

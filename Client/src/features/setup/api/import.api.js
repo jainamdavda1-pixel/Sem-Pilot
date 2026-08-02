@@ -1,5 +1,7 @@
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export async function uploadWorkbookAPI(base64File) {
-  const res = await fetch("http://localhost:5001/api/v1/import/workbook", {
+  const res = await fetch(`${API_BASE}/api/v1/import/workbook`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ file: base64File })
@@ -11,7 +13,7 @@ export async function uploadWorkbookAPI(base64File) {
 }
 
 export async function confirmImportAPI(payload) {
-  const res = await fetch("http://localhost:5001/api/v1/import/confirm", {
+  const res = await fetch(`${API_BASE}/api/v1/import/confirm`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)

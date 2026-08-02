@@ -22,6 +22,8 @@ const GoogleIcon = () => (
   </svg>
 );
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export default function LandingPage() {
   const navigate = useNavigate();
   const [showGoogleModal, setShowGoogleModal] = useState(false);
@@ -61,7 +63,7 @@ export default function LandingPage() {
   const handleLoginSuccess = async (name, email) => {
     setSyncing(true);
     try {
-      const res = await fetch("http://localhost:5001/api/v1/auth/google", {
+      const res = await fetch(`${API_BASE}/api/v1/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email })
@@ -81,7 +83,7 @@ export default function LandingPage() {
       let serverSetupData = null;
       let serverLogs = [];
       try {
-        const dbRes = await fetch(`http://localhost:5001/api/v1/auth/user-data/${userData.id}`);
+        const dbRes = await fetch(`${API_BASE}/api/v1/auth/user-data/${userData.id}`);
         if (dbRes.ok) {
           const dbData = await dbRes.json();
           if (dbData && dbData.data && dbData.data.setupData) {
@@ -107,7 +109,7 @@ export default function LandingPage() {
             const setup = JSON.parse(rawSetup);
             const logs = rawLogs ? JSON.parse(rawLogs) : [];
             
-            await fetch("http://localhost:5001/api/v1/semesters/sync-full-data", {
+            await fetch(`${API_BASE}/api/v1/semesters/sync-full-data`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ setupData: setup, attendanceLogs: logs, userId: userData.id })

@@ -30,7 +30,8 @@ export function AcademicDataProvider({ children }) {
       const user = JSON.parse(localStorage.getItem("sempilot_user") || "null");
       const userId = user?.id || "default-user";
 
-      const res = await fetch(`http://localhost:5001/api/v1/semesters/active?userId=${userId}`);
+      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+      const res = await fetch(`${API_BASE}/api/v1/semesters/active?userId=${userId}`);
       if (!res.ok) {
         throw new Error(await res.text());
       }
