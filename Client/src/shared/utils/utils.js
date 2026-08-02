@@ -5,7 +5,7 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001").replace(/\/$/, "");
 
 export async function syncAttendanceToBackend(logs = []) {
   try {

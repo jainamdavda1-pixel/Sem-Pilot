@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001").replace(/\/$/, "");
 
 export async function uploadWorkbookAPI(base64File) {
   const res = await fetch(`${API_BASE}/api/v1/import/workbook`, {

@@ -17,7 +17,7 @@ export function GoogleCallback() {
     }
 
     const exchangeCode = async () => {
-      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+      const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001").replace(/\/$/, "");
       try {
         const userObj = JSON.parse(localStorage.getItem("sempilot_user") || "null");
         const userId = userObj?.id || "default-user";

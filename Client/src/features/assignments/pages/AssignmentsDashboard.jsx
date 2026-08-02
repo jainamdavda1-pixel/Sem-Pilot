@@ -25,7 +25,7 @@ import {
 import { CreateAssignmentModal } from "../components/CreateAssignmentModal.jsx";
 import { GoogleClassroomConnectModal } from "../components/GoogleClassroomConnectModal.jsx";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001").replace(/\/$/, "");
 import { AssignmentDetailsModal } from "../components/AssignmentDetailsModal.jsx";
 import { Button } from "../../../shared/components/Button";
 import { useAcademicData } from "../../../shared/context/AcademicDataContext";

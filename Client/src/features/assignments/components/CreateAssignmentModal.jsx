@@ -29,7 +29,7 @@ export function CreateAssignmentModal({ isOpen, onClose, onAssignmentCreated }) 
     setLoading(true);
     setErrorMessage("");
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+      const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001").replace(/\/$/, "");
       const res = await fetch(`${API_BASE}/api/v1/assignments?userId=${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -12,7 +12,7 @@ import {
   Loader2
 } from "lucide-react";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001").replace(/\/$/, "");
 
 export function AssignmentDetailsModal({ isOpen, onClose, assignment, onUpdate, onDelete }) {
   const [status, setStatus] = useState("PENDING");

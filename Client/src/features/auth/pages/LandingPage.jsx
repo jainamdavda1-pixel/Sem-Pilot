@@ -22,7 +22,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001").replace(/\/$/, "");
 
 export default function LandingPage() {
   const navigate = useNavigate();
