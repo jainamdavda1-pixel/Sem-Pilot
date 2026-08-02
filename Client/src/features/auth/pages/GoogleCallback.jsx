@@ -19,7 +19,8 @@ export function GoogleCallback() {
     const exchangeCode = async () => {
       const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
       try {
-        const userId = localStorage.getItem("userId") || "default-user";
+        const userObj = JSON.parse(localStorage.getItem("sempilot_user") || "null");
+        const userId = userObj?.id || "default-user";
         const response = await fetch(`${API_BASE}/api/v1/classroom/callback?userId=${userId}`, {
           method: "POST",
           headers: {

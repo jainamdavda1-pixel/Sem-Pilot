@@ -16,7 +16,8 @@ export function CreateAssignmentModal({ isOpen, onClose, onAssignmentCreated }) 
   const [attachments, setAttachments] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const userId = localStorage.getItem("userId") || "default-user";
+  const userObj = JSON.parse(localStorage.getItem("sempilot_user") || "null");
+  const userId = userObj?.id || "default-user";
 
   const handleSubmit = async (e) => {
     e.preventDefault();

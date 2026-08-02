@@ -36,7 +36,8 @@ export function Sidebar({ className }) {
   React.useEffect(() => {
     const fetchPendingCount = async () => {
       try {
-        const userId = localStorage.getItem("userId") || "default-user";
+        const userObj = JSON.parse(localStorage.getItem("sempilot_user") || "null");
+        const userId = userObj?.id || "default-user";
         const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
         const res = await fetch(`${API_BASE}/api/v1/assignments?userId=${userId}`);
         const data = await res.json();

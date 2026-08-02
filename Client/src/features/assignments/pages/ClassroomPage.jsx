@@ -26,7 +26,8 @@ export function ClassroomPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const userId = localStorage.getItem("userId") || "default-user";
+  const userObj = JSON.parse(localStorage.getItem("sempilot_user") || "null");
+  const userId = userObj?.id || "default-user";
 
   const fetchCourses = async () => {
     try {

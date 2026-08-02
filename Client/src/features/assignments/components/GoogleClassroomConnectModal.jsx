@@ -15,7 +15,8 @@ export function GoogleClassroomConnectModal({ isOpen, onClose, onSyncComplete })
   const [syncing, setSyncing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const userId = localStorage.getItem("userId") || "default-user";
+  const userObj = JSON.parse(localStorage.getItem("sempilot_user") || "null");
+  const userId = userObj?.id || "default-user";
 
   // 1. Fetch connection status on open
   useEffect(() => {

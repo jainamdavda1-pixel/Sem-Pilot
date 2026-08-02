@@ -23,7 +23,8 @@ export function AcademicCalendarPage() {
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const userId = localStorage.getItem("userId") || "default-user";
+  const userObj = JSON.parse(localStorage.getItem("sempilot_user") || "null");
+  const userId = userObj?.id || "default-user";
 
   const fetchAssignments = async () => {
     try {
