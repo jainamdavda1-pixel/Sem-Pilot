@@ -19,7 +19,8 @@ import {
   ArrowRight,
   ShieldCheck,
   CheckSquare,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Loader2
 } from "lucide-react";
 import { CreateAssignmentModal } from "../components/CreateAssignmentModal.jsx";
 import { GoogleClassroomConnectModal } from "../components/GoogleClassroomConnectModal.jsx";
