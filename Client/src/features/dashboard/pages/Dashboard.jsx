@@ -33,6 +33,8 @@ export default function Dashboard() {
   const navigate = useNavigate();
   
   const { setupData, setSetupData, attendanceLogs, loading, refreshData } = useAcademicData();
+  const userObj = JSON.parse(localStorage.getItem("sempilot_user") || "null");
+  const userId = userObj?.id || "default-user";
   const [toastMessage, setToastMessage] = useState(null);
 
   // Quick Action Modals
