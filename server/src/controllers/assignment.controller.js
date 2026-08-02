@@ -280,7 +280,9 @@ export const syncGoogleClassroom = asyncHandler(async (req, res) => {
   } else {
     // Real API coursework syncer
     const oauth2 = getOAuth2Client(user);
-    if (oauth2.isTokenExpiring()) {
+    const tokenExpiryTime = user.googleTokenExpiry ? new Date(user.googleTokenExpiry).getTime() : 0;
+    const isExpiring = tokenExpiryTime - Date.now() < 5 * 60 * 1000;
+    if (isExpiring) {
       const refreshed = await oauth2.refreshAccessToken();
       await prisma.user.update({
         where: { id: userId },
