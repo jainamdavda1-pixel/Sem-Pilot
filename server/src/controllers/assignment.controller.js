@@ -12,10 +12,14 @@ const isGoogleConfigured = () => {
 // Instantiate real oauth client
 const getOAuth2Client = (user) => {
   if (!isGoogleConfigured()) return null;
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+  if (process.env.NODE_ENV === "production" && !redirectUri) {
+    throw new ApiError(400, "GOOGLE_REDIRECT_URI is not configured in production settings.");
+  }
   const oauth2 = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI || "http://localhost:5173/google-callback"
+    redirectUri || "http://localhost:5173/google-callback"
   );
   oauth2.setCredentials({
     access_token: user.googleAccessToken,

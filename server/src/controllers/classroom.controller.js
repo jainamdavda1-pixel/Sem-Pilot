@@ -12,10 +12,14 @@ const isGoogleConfigured = () => {
 // Instantiate real oauth client if credentials exist
 const getOAuth2Client = () => {
   if (!isGoogleConfigured()) return null;
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+  if (process.env.NODE_ENV === "production" && !redirectUri) {
+    throw new ApiError(400, "GOOGLE_REDIRECT_URI is not configured in production settings.");
+  }
   return new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI || "http://localhost:5173/google-callback"
+    redirectUri || "http://localhost:5173/google-callback"
   );
 };
 
@@ -23,6 +27,17 @@ const getOAuth2Client = () => {
  * Get Google OAuth Login URL
  */
 export const getAuthUrl = asyncHandler(async (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  if (isProduction) {
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      throw new ApiError(400, "Google OAuth client credentials (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET) are missing on the production server.");
+    }
+    if (!process.env.GOOGLE_REDIRECT_URI) {
+      throw new ApiError(400, "GOOGLE_REDIRECT_URI environment variable is missing. Set it to your deployed frontend's /google-callback URL.");
+    }
+  }
+
   if (!isGoogleConfigured()) {
     // If not configured, redirect client to the mock callback immediately
     const mockCallbackUrl = `http://localhost:5173/google-callback?code=mock_code_sandbox_999`;
