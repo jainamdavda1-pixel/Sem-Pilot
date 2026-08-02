@@ -28,7 +28,8 @@ export function CreateAssignmentModal({ isOpen, onClose, onAssignmentCreated }) 
     setLoading(true);
     setErrorMessage("");
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/assignments?userId=${userId}`, {
+      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+      const res = await fetch(`${API_BASE}/api/v1/assignments?userId=${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

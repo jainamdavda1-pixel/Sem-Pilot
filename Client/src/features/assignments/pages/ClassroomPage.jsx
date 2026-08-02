@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useAcademicData } from "../../../shared/context/AcademicDataContext";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export function ClassroomPage() {
   const { setupData } = useAcademicData();
   const [loading, setLoading] = useState(true);
@@ -28,7 +30,7 @@ export function ClassroomPage() {
 
   const fetchCourses = async () => {
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/courses?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/api/v1/classroom/courses?userId=${userId}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setCourses(data.data);
@@ -43,7 +45,7 @@ export function ClassroomPage() {
 
   const fetchMappings = async () => {
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/mappings?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/api/v1/classroom/mappings?userId=${userId}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         const maps = {};
@@ -61,7 +63,7 @@ export function ClassroomPage() {
     setLoading(true);
     setErrorMessage("");
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/status?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/api/v1/classroom/status?userId=${userId}`);
       const data = await res.json();
       if (data.success) {
         setConnected(data.data.isConnected);
@@ -86,7 +88,7 @@ export function ClassroomPage() {
   const handleConnect = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/auth-url?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/api/v1/classroom/auth-url?userId=${userId}`);
       const data = await res.json();
       if (data.success && data.data.url) {
         localStorage.setItem("google_oauth_redirect_back", window.location.pathname);
@@ -107,7 +109,7 @@ export function ClassroomPage() {
     setErrorMessage("");
     setSuccessMessage("");
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/disconnect?userId=${userId}`, {
+      const res = await fetch(`${API_BASE}/api/v1/classroom/disconnect?userId=${userId}`, {
         method: "POST"
       });
       const data = await res.json();
@@ -140,7 +142,7 @@ export function ClassroomPage() {
         };
       }).filter(m => m.subjectId);
 
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/mappings?userId=${userId}`, {
+      const res = await fetch(`${API_BASE}/api/v1/classroom/mappings?userId=${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mappings: payload })
@@ -165,7 +167,7 @@ export function ClassroomPage() {
     setSyncing(true);
     setErrorMessage("");
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/assignments/sync?userId=${userId}`, {
+      const res = await fetch(`${API_BASE}/api/v1/assignments/sync?userId=${userId}`, {
         method: "POST"
       });
       const data = await res.json();

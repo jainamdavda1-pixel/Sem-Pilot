@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { X, CloudLightning, Loader2, Check, AlertTriangle, LogOut, ArrowRight, RefreshCw } from "lucide-react";
 import { useAcademicData } from "../../../shared/context/AcademicDataContext";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export function GoogleClassroomConnectModal({ isOpen, onClose, onSyncComplete }) {
   const { setupData } = useAcademicData();
   const [loading, setLoading] = useState(false);
@@ -23,7 +25,7 @@ export function GoogleClassroomConnectModal({ isOpen, onClose, onSyncComplete })
       setLoading(true);
       setErrorMessage("");
       try {
-        const res = await fetch(`http://localhost:5001/api/v1/classroom/status?userId=${userId}`);
+        const res = await fetch(`${API_BASE}/api/v1/classroom/status?userId=${userId}`);
         const data = await res.json();
         if (data.success) {
           setConnected(data.data.isConnected);
@@ -47,7 +49,7 @@ export function GoogleClassroomConnectModal({ isOpen, onClose, onSyncComplete })
 
   const fetchCourses = async () => {
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/courses?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/api/v1/classroom/courses?userId=${userId}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setCourses(data.data);
@@ -62,7 +64,7 @@ export function GoogleClassroomConnectModal({ isOpen, onClose, onSyncComplete })
 
   const fetchMappings = async () => {
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/mappings?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/api/v1/classroom/mappings?userId=${userId}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         const maps = {};
@@ -80,7 +82,7 @@ export function GoogleClassroomConnectModal({ isOpen, onClose, onSyncComplete })
   const handleConnect = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/auth-url?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/api/v1/classroom/auth-url?userId=${userId}`);
       const data = await res.json();
       if (data.success && data.data.url) {
         // Save current route to navigate back
@@ -101,7 +103,7 @@ export function GoogleClassroomConnectModal({ isOpen, onClose, onSyncComplete })
     if (!window.confirm("Are you sure you want to disconnect Google Classroom?")) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/disconnect?userId=${userId}`, {
+      const res = await fetch(`${API_BASE}/api/v1/classroom/disconnect?userId=${userId}`, {
         method: "POST"
       });
       const data = await res.json();
@@ -133,7 +135,7 @@ export function GoogleClassroomConnectModal({ isOpen, onClose, onSyncComplete })
         };
       }).filter(m => m.subjectId); // exclude unmapped
 
-      const res = await fetch(`http://localhost:5001/api/v1/classroom/mappings?userId=${userId}`, {
+      const res = await fetch(`${API_BASE}/api/v1/classroom/mappings?userId=${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mappings: payload })
@@ -159,7 +161,7 @@ export function GoogleClassroomConnectModal({ isOpen, onClose, onSyncComplete })
     setSyncing(true);
     setErrorMessage("");
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/assignments/sync?userId=${userId}`, {
+      const res = await fetch(`${API_BASE}/api/v1/assignments/sync?userId=${userId}`, {
         method: "POST"
       });
       const data = await res.json();

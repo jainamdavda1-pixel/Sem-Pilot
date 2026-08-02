@@ -12,6 +12,8 @@ import {
   Loader2
 } from "lucide-react";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export function AssignmentDetailsModal({ isOpen, onClose, assignment, onUpdate, onDelete }) {
   const [status, setStatus] = useState("PENDING");
   const [priority, setPriority] = useState("MEDIUM");
@@ -48,7 +50,7 @@ export function AssignmentDetailsModal({ isOpen, onClose, assignment, onUpdate, 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/assignments/${assignment.id}`, {
+      const res = await fetch(`${API_BASE}/api/v1/assignments/${assignment.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status, priority, notes })
@@ -81,7 +83,7 @@ export function AssignmentDetailsModal({ isOpen, onClose, assignment, onUpdate, 
 
     setDeleting(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/assignments/${assignment.id}`, {
+      const res = await fetch(`${API_BASE}/api/v1/assignments/${assignment.id}`, {
         method: "DELETE"
       });
 

@@ -37,7 +37,8 @@ export function Sidebar({ className }) {
     const fetchPendingCount = async () => {
       try {
         const userId = localStorage.getItem("userId") || "default-user";
-        const res = await fetch(`http://localhost:5001/api/v1/assignments?userId=${userId}`);
+        const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+        const res = await fetch(`${API_BASE}/api/v1/assignments?userId=${userId}`);
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           const pending = data.data.filter(

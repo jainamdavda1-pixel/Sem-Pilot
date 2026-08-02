@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { CreateAssignmentModal } from "../components/CreateAssignmentModal.jsx";
 import { GoogleClassroomConnectModal } from "../components/GoogleClassroomConnectModal.jsx";
+
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
 import { AssignmentDetailsModal } from "../components/AssignmentDetailsModal.jsx";
 import { Button } from "../../../shared/components/Button";
 import { useAcademicData } from "../../../shared/context/AcademicDataContext";
@@ -49,7 +51,7 @@ export function AssignmentsDashboard() {
   const fetchAssignments = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/assignments?userId=${userId}`);
+      const res = await fetch(`${API_BASE}/api/v1/assignments?userId=${userId}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setAssignments(data.data);
@@ -68,7 +70,7 @@ export function AssignmentsDashboard() {
   const handleSyncClassroom = async () => {
     setSyncing(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/v1/assignments/sync?userId=${userId}`, {
+      const res = await fetch(`${API_BASE}/api/v1/assignments/sync?userId=${userId}`, {
         method: "POST"
       });
       const data = await res.json();
