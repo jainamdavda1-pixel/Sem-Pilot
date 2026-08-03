@@ -40,7 +40,8 @@ export const getAuthUrl = asyncHandler(async (req, res) => {
 
   if (!isGoogleConfigured()) {
     // If not configured, redirect client to the mock callback immediately
-    const mockCallbackUrl = `http://localhost:5173/google-callback?code=mock_code_sandbox_999`;
+    const origin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : "http://localhost:5173");
+    const mockCallbackUrl = `${origin.replace(/\/$/, "")}/google-callback?code=mock_code_sandbox_999`;
     return res.status(200).json(
       new ApiResponse(200, { url: mockCallbackUrl, isMock: true }, "Mock login flow initiated")
     );

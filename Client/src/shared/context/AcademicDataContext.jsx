@@ -18,13 +18,39 @@ const LECTURE_TYPE_LABELS = {
 const formatLectureType = (type) => LECTURE_TYPE_LABELS[String(type || "").toUpperCase()] || "Theory";
 
 export function AcademicDataProvider({ children }) {
-  const [setupData, setSetupData] = useState(null);
-  const [attendanceLogs, setAttendanceLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [setupData, setSetupData] = useState(() => {
+    try {
+      const cached = localStorage.getItem("sempilot_setup_data");
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [attendanceLogs, setAttendanceLogs] = useState(() => {
+    try {
+      const cached = localStorage.getItem("sempilot_attendance_logs");
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !localStorage.getItem("sempilot_setup_data");
+    } catch {
+      return true;
+    }
+  });
   const [error, setError] = useState(null);
 
   const refreshData = useCallback(async () => {
-    setLoading(true);
+    setLoading(() => {
+      try {
+        return !localStorage.getItem("sempilot_setup_data");
+      } catch {
+        return true;
+      }
+    });
     setError(null);
     try {
       const user = JSON.parse(localStorage.getItem("sempilot_user") || "null");
