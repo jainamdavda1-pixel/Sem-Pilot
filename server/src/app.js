@@ -11,10 +11,13 @@ const app = express();
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
+    
+    const allowedOrigins = (config.CORS_ORIGIN || '').split(',').map(o => o.trim());
     if (
       origin.startsWith('http://localhost:') ||
       origin.startsWith('http://127.0.0.1:') ||
-      origin.includes('.vercel.app')
+      origin.includes('.vercel.app') ||
+      allowedOrigins.includes(origin)
     ) {
       return callback(null, true);
     }

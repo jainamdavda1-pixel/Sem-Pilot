@@ -35,10 +35,19 @@ export const getUserData = asyncHandler(async (req, res) => {
       holidays: true,
       subjects: {
         include: {
-          lectures: true,
+          faculty: true,
+          lectures: {
+            include: {
+              faculty: true
+            }
+          },
           attendanceRecords: {
             include: {
-              lecture: true
+              lecture: {
+                include: {
+                  faculty: true
+                }
+              }
             }
           }
         }
@@ -49,6 +58,18 @@ export const getUserData = asyncHandler(async (req, res) => {
   if (!semester) {
     return res.status(200).json(new ApiResponse(200, { setupData: null, attendanceLogs: [] }, 'No semester data found'));
   }
+
+  const LECTURE_TYPE_LABELS = {
+    LAB: "Lab",
+    TUTORIAL: "Tutorial",
+    WORKSHOP: "Workshop",
+    PRACTICAL: "Practical",
+    SEMINAR: "Seminar",
+    PROJECT: "Project",
+    THEORY: "Theory"
+  };
+
+  const formatLectureType = (type) => LECTURE_TYPE_LABELS[String(type || "").toUpperCase()] || "Theory";
 
   // Format into frontend setupData format
   const setupData = {
@@ -70,13 +91,24 @@ export const getUserData = asyncHandler(async (req, res) => {
       else if (sub.facultyStrictness === 1) strictness = "low";
 
       return {
+        id: sub.id,
         name: sub.name,
+        code: sub.code,
+        credits: sub.credits || 3,
+        difficulty: sub.difficulty || "Medium",
+        color: sub.color || "blue",
         priority,
         facultyStrictness: strictness,
-        facultyName: sub.facultyName || ""
+        facultyName: sub.faculty?.name || ""
       };
     }),
-    timetableEntries: []
+    timetableEntries: [],
+    holidays: (semester.holidays || []).map(h => ({
+      id: h.id,
+      name: h.title,
+      date: h.date.toISOString().split('T')[0],
+      description: h.description || ""
+    }))
   };
 
   // Extract timetable entries
@@ -93,12 +125,14 @@ export const getUserData = asyncHandler(async (req, res) => {
   semester.subjects.forEach(sub => {
     sub.lectures.forEach(lec => {
       setupData.timetableEntries.push({
+        id: lec.id,
         day: dayNameMapping[lec.dayOfWeek] || "Monday",
         subjectName: sub.name,
         startTime: lec.startTime,
         endTime: lec.endTime,
-        lectureType: lec.lectureType === "LAB" ? "Practical" : lec.lectureType === "TUTORIAL" ? "Tutorial" : "Theory",
-        room: lec.room || ""
+        lectureType: formatLectureType(lec.lectureType),
+        room: lec.room || "",
+        facultyName: lec.faculty?.name || ""
       });
     });
   });
@@ -114,23 +148,25 @@ export const getUserData = asyncHandler(async (req, res) => {
   const attendanceLogs = [];
   semester.subjects.forEach(sub => {
     sub.attendanceRecords.forEach(rec => {
-      if (rec.lecture) {
-        attendanceLogs.push({
-          date: rec.lectureDate.toISOString().split('T')[0],
-          subjectName: sub.name,
-          startTime: rec.lecture.startTime,
-          status: statusMapping[rec.status] || "Present",
-          lectureType: rec.lecture.lectureType === "LAB" ? "Practical" : rec.lecture.lectureType === "TUTORIAL" ? "Tutorial" : "Theory"
-        });
-      }
+      const lec = sub.lectures.find(l => l.id === rec.lectureId);
+      attendanceLogs.push({
+        id: rec.id,
+        date: rec.lectureDate.toISOString().split('T')[0],
+        subjectName: sub.name,
+        lectureType: lec ? formatLectureType(lec.lectureType) : "Theory",
+        startTime: lec ? lec.startTime : "09:00",
+        endTime: lec ? lec.endTime : "10:00",
+        status: statusMapping[rec.status] || "Present",
+        timestamp: new Date(rec.createdAt).getTime()
+      });
     });
   });
 
   // Sort logs by date and startTime
   attendanceLogs.sort((a, b) => {
-    const dateComp = a.date.localeCompare(b.date);
+    const dateComp = (a.date || "").localeCompare(b.date || "");
     if (dateComp !== 0) return dateComp;
-    return a.startTime.localeCompare(b.startTime);
+    return (a.startTime || "").localeCompare(b.startTime || "");
   });
 
   return res.status(200).json(new ApiResponse(200, { setupData, attendanceLogs }, 'User data resolved successfully'));
