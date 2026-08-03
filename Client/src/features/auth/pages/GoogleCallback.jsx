@@ -34,9 +34,11 @@ export function GoogleCallback() {
           throw new Error(data.message || "Failed to exchange Google OAuth code.");
         }
 
+        const redirectBack = localStorage.getItem("google_oauth_redirect_back") || "/assignments";
+        localStorage.removeItem("google_oauth_redirect_back");
         setStatus("success");
         setTimeout(() => {
-          navigate("/assignments");
+          navigate(redirectBack);
         }, 1500);
       } catch (err) {
         setStatus("error");
