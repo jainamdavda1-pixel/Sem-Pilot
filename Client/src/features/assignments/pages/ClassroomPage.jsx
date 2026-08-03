@@ -95,11 +95,11 @@ export function ClassroomPage() {
         localStorage.setItem("google_oauth_redirect_back", window.location.pathname);
         window.location.href = data.data.url;
       } else {
-        throw new Error("Could not retrieve oauth url.");
+        throw new Error(data.message || "Could not retrieve oauth url.");
       }
     } catch (err) {
       console.error(err);
-      setErrorMessage("Failed to start Google OAuth process.");
+      setErrorMessage(err.message || "Failed to start Google OAuth process.");
       setLoading(false);
     }
   };
