@@ -21,8 +21,6 @@ import { parseExcelAttendance } from "../../timetable/utils/parser";
 import { cn } from "../../../shared/utils/utils";
 
 export function ImportPastAttendanceModal({ isOpen, onClose, setupData, attendanceLogs = [], onSave }) {
-  if (!isOpen || !setupData) return null;
-
   // Active Tab: "manual" | "upload"
   const [activeTab, setActiveTab] = useState("manual");
 
@@ -54,8 +52,8 @@ export function ImportPastAttendanceModal({ isOpen, onClose, setupData, attendan
     );
   };
 
-  const startDateStr = getSemesterStartDate(setupData);
-  const timetableEntries = setupData.timetableEntries || [];
+  const startDateStr = setupData ? getSemesterStartDate(setupData) : "";
+  const timetableEntries = setupData ? (setupData.timetableEntries || []) : [];
 
   // Generate historical past lectures for manual entry on mount/open
   useEffect(() => {
@@ -394,6 +392,8 @@ export function ImportPastAttendanceModal({ isOpen, onClose, setupData, attendan
   const uploadedAbsentCount = uploadedData.filter(l => l.status === "Absent").length;
   const uploadedCancelledCount = uploadedData.filter(l => l.status === "Cancelled").length;
   const uploadedHolidayCount = uploadedData.filter(l => l.status === "Holiday").length;
+
+  if (!isOpen || !setupData) return null;
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">

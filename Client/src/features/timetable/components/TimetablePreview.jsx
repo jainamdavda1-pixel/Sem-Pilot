@@ -250,6 +250,18 @@ export function TimetablePreview({ entries = [], onUpdateEntries, className }) {
   // Overlay preview state
   const [activeId, setActiveId] = useState(null);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeTabDay, setActiveTabDay] = useState("Monday");
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Edit/Add modal dialog state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add"); // "add" or "edit"
@@ -524,97 +536,217 @@ export function TimetablePreview({ entries = [], onUpdateEntries, className }) {
         </div>
       </div>
 
-      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="overflow-x-auto">
-          <div 
-            className="min-w-[900px] border border-slate-100 rounded-2xl bg-slate-50/20"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "120px repeat(6, 1fr)",
-              gridTemplateRows: "45px repeat(8, 120px)",
-              gap: "1px",
-              backgroundColor: "#f8fafc"
-            }}
-          >
-            {/* Header day labels */}
-            <div className="bg-slate-50/80 font-bold text-slate-500 text-[10px] uppercase tracking-wider flex items-center justify-center border-b border-r border-slate-200/50">
-              Time
-            </div>
-            {DAYS.map((d, i) => (
-              <div key={i} className="bg-slate-50/80 font-bold text-slate-500 text-[10px] uppercase tracking-wider flex items-center justify-center border-b border-slate-200/50">
+      {isMobile ? (
+        <div className="space-y-4">
+          {/* Day selection tabs */}
+          <div className="flex gap-1.5 overflow-x-auto pb-2 -mx-4 px-4 select-none scrollbar-none border-b border-slate-100">
+            {DAYS.map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setActiveTabDay(d)}
+                className={cn(
+                  "px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors border",
+                  activeTabDay === d
+                    ? "bg-primary text-white border-primary"
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                )}
+              >
                 {d}
-              </div>
+              </button>
             ))}
+          </div>
 
-            {/* Ingestion Slot Cells */}
-            {TIME_SLOTS.map((slot, sIdx) => {
-              const rowIdx = sIdx + 2;
-              return (
-                <React.Fragment key={sIdx}>
-                  
-                  {/* Time columns labels */}
-                  <div 
-                    className="bg-white font-bold text-slate-500 text-[10px] flex items-center justify-center border-r border-slate-200/50"
-                    style={{
-                      gridColumn: 1,
-                      gridRow: rowIdx
-                    }}
-                  >
-                    {slot.label}
+          {/* Timeline List of Lectures */}
+          <div className="space-y-3">
+            {(() => {
+              const dayLectures = entries
+                .filter((e) => String(e.day || "").toLowerCase() === activeTabDay.toLowerCase())
+                .sort((a, b) => (a.startTime || "").localeCompare(b.startTime || ""));
+
+              if (dayLectures.length === 0) {
+                return (
+                  <div className="py-12 border border-dashed border-slate-200 bg-white rounded-xl text-center p-6 space-y-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mx-auto text-sm select-none">
+                      💤
+                    </div>
+                    <div className="space-y-1">
+                      <h5 className="text-xs font-bold text-slate-800">No Lectures Scheduled</h5>
+                      <p className="text-[10px] text-slate-500 max-w-xs mx-auto">
+                        Nothing scheduled for {activeTabDay}. Rest up or self-study!
+                      </p>
+                    </div>
                   </div>
+                );
+              }
 
-                  {/* Empty droppables dropzones */}
-                  {DAYS.map((day, dIdx) => {
-                    const colIdx = dIdx + 2;
+              return (
+                <div className="space-y-3">
+                  {dayLectures.map((lec) => {
+                    const idx = entries.indexOf(lec);
+                    const conflicts = getLectureConflicts(lec, idx);
+                    const typeClean = String(lec.lectureType || "THEORY").trim().toUpperCase();
+
                     return (
-                      <div
-                        key={dIdx}
-                        style={{
-                          gridColumn: colIdx,
-                          gridRow: rowIdx,
-                          zIndex: 1
-                        }}
+                      <div 
+                        key={idx}
+                        onClick={(e) => handleCardClick(lec, idx, e)}
+                        className={cn(
+                          "p-4 rounded-xl border text-left font-sans flex flex-col justify-between shadow-sm cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden",
+                          conflicts.length > 0 
+                            ? "border-red-300 bg-red-50 text-red-900" 
+                            : getSubjectPastel(lec.subjectName, lec.lectureType)
+                        )}
                       >
-                        <GridCell 
-                          day={day} 
-                          slot={slot} 
-                          onClick={() => handleCellClick(day, slot)}
-                        />
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-start gap-2">
+                            <div className="space-y-1">
+                              <span className={cn(
+                                "text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider",
+                                typeClean === "LAB" ? "bg-blue-800 text-white" : "bg-white/60 border border-current text-inherit"
+                              )}>
+                                {lec.lectureType || "THEORY"}
+                              </span>
+                              <h4 className="text-sm font-bold text-slate-800 tracking-tight mt-1.5">
+                                {lec.subjectName}
+                              </h4>
+                            </div>
+                            {conflicts.length > 0 && (
+                              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5 animate-pulse" />
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 text-[10px] opacity-90 pt-1.5 border-t border-slate-100/50">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span className="font-semibold">{lec.startTime} - {lec.endTime}</span>
+                            </div>
+                            {lec.room && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>Room: {lec.room}</span>
+                              </div>
+                            )}
+                            {(lec.faculty || lec.facultyName) && (
+                              <div className="flex items-center gap-1 col-span-2">
+                                <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>Faculty: {lec.faculty || lec.facultyName}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
-
-                </React.Fragment>
+                </div>
               );
-            })}
+            })()}
 
-            {/* Draggable overlays layer cards */}
-            {entries.map((lec, idx) => (
-              <DraggableLectureCard
-                key={idx}
-                lecture={lec}
-                index={idx}
-                onClick={(e) => handleCardClick(lec, idx, e)}
-                onResizeStart={handleResizeStart}
-                conflicts={getLectureConflicts(lec, idx)}
-                isOverlay={false}
-              />
-            ))}
-
+            <div className="pt-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full h-10 border-dashed border-slate-300 text-slate-500 hover:bg-slate-50 hover:text-slate-700 flex items-center justify-center gap-1.5"
+                onClick={() => handleCellClick(activeTabDay, TIME_SLOTS[0])}
+              >
+                <Plus className="w-4 h-4" /> Add Lecture to {activeTabDay}
+              </Button>
+            </div>
           </div>
         </div>
+      ) : (
+        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <div className="overflow-x-auto">
+            <div 
+              className="min-w-[900px] border border-slate-100 rounded-2xl bg-slate-50/20"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "120px repeat(6, 1fr)",
+                gridTemplateRows: "45px repeat(8, 120px)",
+                gap: "1px",
+                backgroundColor: "#f8fafc"
+              }}
+            >
+              {/* Header day labels */}
+              <div className="bg-slate-50/80 font-bold text-slate-500 text-[10px] uppercase tracking-wider flex items-center justify-center border-b border-r border-slate-200/50">
+                Time
+              </div>
+              {DAYS.map((d, i) => (
+                <div key={i} className="bg-slate-50/80 font-bold text-slate-500 text-[10px] uppercase tracking-wider flex items-center justify-center border-b border-slate-200/50">
+                  {d}
+                </div>
+              ))}
 
-        <DragOverlay>
-          {activeLecture ? (
-            <DraggableLectureCard
-              lecture={activeLecture}
-              index={activeIndex}
-              conflicts={getLectureConflicts(activeLecture, activeIndex)}
-              isOverlay={true}
-            />
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+              {/* Ingestion Slot Cells */}
+              {TIME_SLOTS.map((slot, sIdx) => {
+                const rowIdx = sIdx + 2;
+                return (
+                  <React.Fragment key={sIdx}>
+                    
+                    {/* Time columns labels */}
+                    <div 
+                      className="bg-white font-bold text-slate-500 text-[10px] flex items-center justify-center border-r border-slate-200/50"
+                      style={{
+                        gridColumn: 1,
+                        gridRow: rowIdx
+                      }}
+                    >
+                      {slot.label}
+                    </div>
+
+                    {/* Empty droppables dropzones */}
+                    {DAYS.map((day, dIdx) => {
+                      const colIdx = dIdx + 2;
+                      return (
+                        <div
+                          key={dIdx}
+                          style={{
+                            gridColumn: colIdx,
+                            gridRow: rowIdx,
+                            zIndex: 1
+                          }}
+                        >
+                          <GridCell 
+                            day={day} 
+                            slot={slot} 
+                            onClick={() => handleCellClick(day, slot)}
+                          />
+                        </div>
+                      );
+                    })}
+
+                  </React.Fragment>
+                );
+              })}
+
+              {/* Draggable overlays layer cards */}
+              {entries.map((lec, idx) => (
+                <DraggableLectureCard
+                  key={idx}
+                  lecture={lec}
+                  index={idx}
+                  onClick={(e) => handleCardClick(lec, idx, e)}
+                  onResizeStart={handleResizeStart}
+                  conflicts={getLectureConflicts(lec, idx)}
+                  isOverlay={false}
+                />
+              ))}
+
+            </div>
+          </div>
+
+          <DragOverlay>
+            {activeLecture ? (
+              <DraggableLectureCard
+                lecture={activeLecture}
+                index={activeIndex}
+                conflicts={getLectureConflicts(activeLecture, activeIndex)}
+                isOverlay={true}
+              />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      )}
 
       {/* Dynamic Popover Modal Editor */}
       {isModalOpen && (

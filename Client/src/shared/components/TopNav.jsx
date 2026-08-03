@@ -1,8 +1,8 @@
 import React from "react";
-import { Search, HelpCircle, CalendarRange } from "lucide-react";
+import { Search, HelpCircle, CalendarRange, Menu } from "lucide-react";
 import { cn } from "../utils/utils";
 
-export function TopNav({ className, title = "Dashboard" }) {
+export function TopNav({ className, title = "Dashboard", onMenuClick }) {
   // Get formatting for the current date
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "short",
@@ -11,12 +11,18 @@ export function TopNav({ className, title = "Dashboard" }) {
   });
 
   return (
-    <header className={cn("h-14 border-b border-slate-200/60 bg-white px-6 flex items-center justify-between sticky top-0 z-30 shrink-0", className)}>
+    <header className={cn("h-14 border-b border-slate-200/60 bg-white px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shrink-0", className)}>
       {/* Page Title & Breadcrumbs */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-slate-400 font-medium tracking-wide uppercase select-none">SemPilot</span>
-        <span className="text-slate-300">/</span>
-        <h1 className="text-sm font-semibold text-slate-800 tracking-tight">{title}</h1>
+        <button 
+          onClick={onMenuClick}
+          className="lg:hidden p-1.5 -ml-1 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors shrink-0"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <span className="text-xs text-slate-400 font-medium tracking-wide uppercase select-none hidden sm:inline">SemPilot</span>
+        <span className="text-slate-300 hidden sm:inline">/</span>
+        <h1 className="text-sm font-semibold text-slate-800 tracking-tight truncate max-w-[120px] sm:max-w-[250px] md:max-w-none">{title}</h1>
       </div>
 
       {/* Right Side Options */}
