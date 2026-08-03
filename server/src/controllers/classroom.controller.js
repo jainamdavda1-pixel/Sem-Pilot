@@ -10,9 +10,17 @@ const isGoogleConfigured = () => {
 };
 
 // Instantiate real oauth client if credentials exist
-const getOAuth2Client = () => {
+const getOAuth2Client = (req) => {
   if (!isGoogleConfigured()) return null;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+  
+  let redirectUri = process.env.GOOGLE_REDIRECT_URI;
+  if (req) {
+    const origin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : null);
+    if (origin) {
+      redirectUri = `${origin.replace(/\/$/, "")}/google-callback`;
+    }
+  }
+
   if (process.env.NODE_ENV === "production" && !redirectUri) {
     throw new ApiError(400, "GOOGLE_REDIRECT_URI is not configured in production settings.");
   }
@@ -47,7 +55,7 @@ export const getAuthUrl = asyncHandler(async (req, res) => {
     );
   }
 
-  const oauth2 = getOAuth2Client();
+  const oauth2 = getOAuth2Client(req);
   const scopes = [
     "https://www.googleapis.com/auth/classroom.courses.readonly",
     "https://www.googleapis.com/auth/classroom.coursework.me.readonly",
@@ -110,7 +118,7 @@ export const handleCallback = asyncHandler(async (req, res) => {
   }
 
   // Real Google OAuth Flow
-  const oauth2 = getOAuth2Client();
+  const oauth2 = getOAuth2Client(req);
   const { tokens } = await oauth2.getToken(code);
   oauth2.setCredentials(tokens);
 
@@ -202,7 +210,7 @@ export const getCourses = asyncHandler(async (req, res) => {
   }
 
   // Real API Fetch
-  const oauth2 = getOAuth2Client();
+  const oauth2 = getOAuth2Client(req);
   oauth2.setCredentials({
     access_token: user.googleAccessToken,
     refresh_token: user.googleRefreshToken,
