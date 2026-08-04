@@ -41,9 +41,6 @@ export const getAuthUrl = asyncHandler(async (req, res) => {
     if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
       throw new ApiError(400, "Google OAuth client credentials (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET) are missing on the production server.");
     }
-    if (!process.env.GOOGLE_REDIRECT_URI) {
-      throw new ApiError(400, "GOOGLE_REDIRECT_URI environment variable is missing. Set it to your deployed frontend's /google-callback URL.");
-    }
   }
 
   if (!isGoogleConfigured()) {
