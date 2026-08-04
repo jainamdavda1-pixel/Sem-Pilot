@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,9 +6,145 @@ datasource db {
   provider = "postgresql"
 }
 
-//////////////////////////////////////////////////////
-// ENUMS
-//////////////////////////////////////////////////////
+model User {
+  id                    String     @id @default(cuid())
+  name                  String
+  email                 String?    @unique
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  googleAccessToken     String?
+  googleClassroomUserId String?
+  googleEmail           String?
+  googleRefreshToken    String?
+  googleTokenExpiry     DateTime?
+  semesters             Semester[]
+}
+
+model Semester {
+  id                    String    @id @default(cuid())
+  name                  String
+  academicYear          String
+  startDate             DateTime
+  endDate               DateTime
+  attendanceRequirement Int       @default(75)
+  userId                String
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  faculties             Faculty[]
+  holidays              Holiday[]
+  user                  User      @relation(fields: [userId], references: [id])
+  subjects              Subject[]
+}
+
+model Subject {
+  id                String                @id @default(cuid())
+  code              String                @unique
+  name              String
+  type              SubjectType
+  credits           Int?
+  subjectPriority   Int?
+  semesterId        String
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  color             String?
+  difficulty        String?
+  facultyId         String?
+  assignments       Assignment[]
+  attendanceRecords Attendance[]
+  mappings          GoogleCourseMapping[]
+  lectures          Lecture[]
+  faculty           Faculty?              @relation(fields: [facultyId], references: [id])
+  semester          Semester              @relation(fields: [semesterId], references: [id])
+}
+
+model Lecture {
+  id           String       @id @default(cuid())
+  dayOfWeek    Day
+  startTime    String
+  endTime      String
+  lectureType  LectureType
+  room         String?
+  repeatWeekly Boolean      @default(true)
+  subjectId    String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  facultyId    String?
+  attendance   Attendance[]
+  faculty      Faculty?     @relation(fields: [facultyId], references: [id])
+  subject      Subject      @relation(fields: [subjectId], references: [id])
+}
+
+model Attendance {
+  id          String           @id @default(cuid())
+  lectureDate DateTime
+  status      AttendanceStatus
+  remarks     String?
+  lectureId   String
+  subjectId   String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  lecture     Lecture          @relation(fields: [lectureId], references: [id])
+  subject     Subject          @relation(fields: [subjectId], references: [id])
+}
+
+model Holiday {
+  id          String   @id @default(cuid())
+  title       String
+  date        DateTime
+  description String?
+  semesterId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  semester    Semester @relation(fields: [semesterId], references: [id])
+}
+
+model Faculty {
+  id          String    @id @default(cuid())
+  name        String
+  department  String
+  email       String?
+  cabin       String?
+  designation String?
+  semesterId  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  semester    Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  lectures    Lecture[]
+  subjects    Subject[]
+}
+
+model Assignment {
+  id                 String    @id @default(cuid())
+  title              String
+  description        String?
+  subjectId          String
+  source             String
+  googleAssignmentId String?   @unique
+  googleCourseId     String?
+  dueDate            DateTime?
+  dueTime            String?
+  maxMarks           Float?
+  priority           String    @default("MEDIUM")
+  status             String    @default("PENDING")
+  submissionStatus   String?
+  attachments        String?
+  notes              String?
+  completedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  subject            Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+}
+
+model GoogleCourseMapping {
+  id             String   @id @default(cuid())
+  googleCourseId String   @unique
+  courseName     String
+  subjectId      String
+  userId         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  subject        Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+}
 
 enum SubjectType {
   THEORY
@@ -51,226 +182,3 @@ enum AttendanceStatus {
   CANCELLED
   HOLIDAY
 }
-
-//////////////////////////////////////////////////////
-// USER
-//////////////////////////////////////////////////////
-
-model User {
-  id    String  @id @default(cuid())
-  name  String
-  email String? @unique
-
-  // Google Classroom OAuth Creds
-  googleAccessToken     String?
-  googleRefreshToken    String?
-  googleTokenExpiry     DateTime?
-  googleClassroomUserId String?
-  googleEmail           String?
-
-  semesters Semester[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-//////////////////////////////////////////////////////
-// SEMESTER
-//////////////////////////////////////////////////////
-
-model Semester {
-  id String @id @default(cuid())
-
-  name         String
-  academicYear String
-
-  startDate DateTime
-  endDate   DateTime
-
-  attendanceRequirement Int @default(75)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  subjects Subject[]
-  holidays Holiday[]
-  faculties Faculty[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-//////////////////////////////////////////////////////
-// SUBJECT
-//////////////////////////////////////////////////////
-
-model Subject {
-  id String @id @default(cuid())
-
-  code String @unique
-
-  name String
-
-  type SubjectType
-
-  credits Int?
-  facultyId String?
-  faculty   Faculty? @relation(fields: [facultyId], references: [id], onDelete: SetNull)
-  difficulty String?
-  color     String?
-  subjectPriority Int?
-
-  semesterId String
-  semester   Semester @relation(fields: [semesterId], references: [id])
-
-  lectures Lecture[]
-
-  attendanceRecords Attendance[]
-  assignments       Assignment[]
-  mappings          GoogleCourseMapping[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-
-//////////////////////////////////////////////////////
-// LECTURE
-//////////////////////////////////////////////////////
-
-model Lecture {
-  id String @id @default(cuid())
-
-  dayOfWeek Day
-
-  startTime String
-
-  endTime String
-
-  lectureType LectureType
-
-  room String?
-
-  repeatWeekly Boolean @default(true)
-  subjectId String
-  subject Subject @relation(fields: [subjectId], references: [id])
-  facultyId String?
-  faculty   Faculty? @relation(fields: [facultyId], references: [id], onDelete: SetNull)
-  attendance Attendance[]
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-//////////////////////////////////////////////////////
-// ATTENDANCE
-//////////////////////////////////////////////////////
-
-model Attendance {
-  id String @id @default(cuid())
-
-  lectureDate DateTime
-
-  status AttendanceStatus
-
-  remarks String?
-
-  lectureId String
-
-  lecture Lecture @relation(fields: [lectureId], references: [id])
-
-  subjectId String
-
-  subject Subject @relation(fields: [subjectId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-//////////////////////////////////////////////////////
-// HOLIDAY
-//////////////////////////////////////////////////////
-
-model Holiday {
-  id String @id @default(cuid())
-
-  title String
-
-  date DateTime
-
-  description String?
-
-  semesterId String
-
-  semester Semester @relation(fields: [semesterId], references: [id])
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-//////////////////////////////////////////////////////
-// FACULTY
-//////////////////////////////////////////////////////
-
-model Faculty {
-  id          String   @id @default(cuid())
-  name        String
-  department  String
-  email       String?
-  cabin       String?
-  designation String?
-
-  semesterId  String
-  semester    Semester @relation(fields: [semesterId], references: [id], onDelete: Cascade)
-
-  subjects    Subject[]
-  lectures    Lecture[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-//////////////////////////////////////////////////////
-// ASSIGNMENT
-//////////////////////////////////////////////////////
-
-model Assignment {
-  id                 String    @id @default(cuid())
-  title              String
-  description        String?
-  subjectId          String
-  subject            Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  source             String    // "GOOGLE" | "MANUAL"
-  googleAssignmentId String?   @unique
-  googleCourseId     String?
-  dueDate            DateTime?
-  dueTime            String?
-  maxMarks           Float?
-  priority           String    @default("MEDIUM") // "LOW" | "MEDIUM" | "HIGH" | "URGENT"
-  status             String    @default("PENDING") // "PENDING" | "IN_PROGRESS" | "SUBMITTED" | "COMPLETED" | "MISSED" | "OVERDUE"
-  submissionStatus   String?
-  attachments        String?
-  notes              String?
-  completedAt        DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-}
-
-//////////////////////////////////////////////////////
-// GOOGLE COURSE MAPPING
-//////////////////////////////////////////////////////
-
-model GoogleCourseMapping {
-  id             String   @id @default(cuid())
-  googleCourseId String   @unique
-  courseName     String
-  subjectId      String
-  subject        Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  userId         String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-}
-
