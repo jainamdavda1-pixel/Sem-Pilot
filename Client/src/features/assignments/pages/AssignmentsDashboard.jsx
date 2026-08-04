@@ -114,6 +114,14 @@ export function AssignmentsDashboard() {
   // Filters logic
   const filteredAssignments = useMemo(() => {
     return assignments.filter((ass) => {
+      // 0. Show completed only when asked (timeFilter === "completed")
+      const isCompleted = ass.status === "COMPLETED" || ass.status === "SUBMITTED";
+      if (timeFilter === "completed") {
+        if (!isCompleted) return false;
+      } else {
+        if (isCompleted) return false;
+      }
+
       // 1. Search Term
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
@@ -135,7 +143,7 @@ export function AssignmentsDashboard() {
       }
 
       // 4. Time Filter
-      if (timeFilter !== "all") {
+      if (timeFilter !== "all" && timeFilter !== "completed") {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -147,14 +155,8 @@ export function AssignmentsDashboard() {
 
         const dueDateObj = ass.dueDate ? new Date(ass.dueDate) : null;
 
-        if (timeFilter === "completed") {
-          return ass.status === "COMPLETED" || ass.status === "SUBMITTED";
-        }
-
-        const isDone = ass.status === "COMPLETED" || ass.status === "SUBMITTED";
-
         if (timeFilter === "overdue") {
-          if (isDone || !dueDateObj) return false;
+          if (!dueDateObj) return false;
           return dueDateObj < today;
         }
 
