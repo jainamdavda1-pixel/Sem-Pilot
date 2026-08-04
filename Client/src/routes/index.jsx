@@ -15,6 +15,7 @@ import { GoogleCallback } from "../features/auth/pages/GoogleCallback";
 import { AssignmentsDashboard } from "../features/assignments/pages/AssignmentsDashboard";
 import { AcademicCalendarPage } from "../features/calendar/pages/AcademicCalendarPage";
 import { ClassroomPage } from "../features/assignments/pages/ClassroomPage";
+import { AIAssistantPage } from "../features/ai-assistant/pages/AIAssistantPage";
 
 // Simple, beautiful mock placeholders for future core pages
 const PagePlaceholder = ({ name }) => (
@@ -147,7 +148,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/ai-assistant",
-        element: <PagePlaceholder name="AI Copilot Assistant Space" />,
+        element: <AIAssistantPage />,
       },
       {
         path: "/analytics",

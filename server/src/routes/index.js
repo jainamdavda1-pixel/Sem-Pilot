@@ -9,6 +9,7 @@ import facultyRoutes from './faculty.routes.js';
 import importRoutes from './import.routes.js';
 import classroomRoutes from './classroom.routes.js';
 import assignmentRoutes from './assignment.routes.js';
+import aiRoutes from './ai.routes.js';
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.use('/attendance', attendanceRoutes);
 router.use('/holidays', holidayRoutes);
 router.use('/classroom', classroomRoutes);
 router.use('/assignments', assignmentRoutes);
+router.use('/ai', aiRoutes);
 
 export default router;
 
