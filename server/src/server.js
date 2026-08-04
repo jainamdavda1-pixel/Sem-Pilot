@@ -2,6 +2,7 @@ import { app } from './app.js';
 import { config } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { prisma } from './lib/prisma.js';
+import { startNotificationScheduler } from './services/scheduler.service.js';
 
 const startServer = async () => {
   try {
@@ -15,6 +16,9 @@ const startServer = async () => {
       create: { id: 'default-user', name: 'Default Student' }
     });
     logger.info('Default user verified in database.');
+
+    // Start background notification scheduler
+    startNotificationScheduler();
 
     const port = config.PORT;
     app.listen(port, () => {

@@ -23,7 +23,10 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "googleapis": "^173.0.0",
+    "node-cron": "^4.6.0",
+    "nodemailer": "^9.0.4",
     "pg": "^8.22.0",
+    "web-push": "^3.6.7",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

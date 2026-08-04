@@ -27,6 +27,7 @@ import { calculateAttendanceStats } from "../../attendance/utils/attendanceUtils
 import { cn, syncAttendanceToBackend } from "../../../shared/utils/utils";
 import { ImportPastAttendanceModal } from "../components/ImportPastAttendanceModal";
 import { useAcademicData } from "../../../shared/context/AcademicDataContext";
+import { NotificationPreferencesCard } from "../components/NotificationPreferencesCard";
 
 const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001").replace(/\/$/, "");
 
@@ -502,6 +503,8 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
+
+          <NotificationPreferencesCard />
 
         </div>
 

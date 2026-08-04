@@ -7,17 +7,20 @@ datasource db {
 }
 
 model User {
-  id                    String     @id @default(cuid())
-  name                  String
-  email                 String?    @unique
-  createdAt             DateTime   @default(now())
-  updatedAt             DateTime   @updatedAt
-  googleAccessToken     String?
-  googleClassroomUserId String?
-  googleEmail           String?
-  googleRefreshToken    String?
-  googleTokenExpiry     DateTime?
-  semesters             Semester[]
+  id                     String                  @id @default(cuid())
+  name                   String
+  email                  String?                 @unique
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  googleAccessToken      String?
+  googleClassroomUserId  String?
+  googleEmail            String?
+  googleRefreshToken     String?
+  googleTokenExpiry      DateTime?
+  semesters              Semester[]
+  notifications          Notification[]
+  pushSubscriptions      PushSubscription[]
+  notificationPreference NotificationPreference?
 }
 
 model Semester {
@@ -181,4 +184,45 @@ enum AttendanceStatus {
   ABSENT
   CANCELLED
   HOLIDAY
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  title       String
+  message     String
+  metadata    Json?
+  isRead      Boolean  @default(false)
+  browserSent Boolean  @default(false)
+  emailSent   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PushSubscription {
+  id             String    @id @default(cuid())
+  userId         String
+  endpoint       String    @unique
+  expirationTime DateTime?
+  keys           Json
+  createdAt      DateTime  @default(now())
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model NotificationPreference {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  globalEnabled      Boolean  @default(true)
+  browserAssignments Boolean  @default(true)
+  browserAttendance  Boolean  @default(true)
+  browserExams       Boolean  @default(true)
+  browserAnnouncements Boolean  @default(true)
+  browserAI          Boolean  @default(true)
+  emailAssignments   Boolean  @default(true)
+  emailAttendance    Boolean  @default(true)
+  emailExams         Boolean  @default(true)
+  emailAI            Boolean  @default(true)
+  emailAnnouncements Boolean  @default(true)
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
