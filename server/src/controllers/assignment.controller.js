@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { prisma } from "../lib/prisma.js";
+import { NotificationService } from "../services/notification.service.js";
 
 // Helper to check if Google credentials are configured
 const isGoogleConfigured = () => {
@@ -206,7 +207,8 @@ export const syncGoogleClassroom = asyncHandler(async (req, res) => {
 
   // Get active course mappings
   const mappings = await prisma.googleCourseMapping.findMany({
-    where: { userId }
+    where: { userId },
+    include: { subject: true }
   });
 
   if (mappings.length === 0) {
@@ -369,12 +371,19 @@ export const syncGoogleClassroom = asyncHandler(async (req, res) => {
     });
 
     if (existingAss) {
-      // Check for updates
+      // Check for submission state transition to Completed
+      const isNewlyCompleted =
+        (existingAss.status !== "COMPLETED" && status === "COMPLETED") ||
+        (existingAss.submissionStatus !== cw.submissionState && (cw.submissionState === "TURNED_IN" || cw.submissionState === "RETURNED"));
+
+      // Check for general updates
       const hasChanged =
         existingAss.title !== cw.title ||
         existingAss.description !== cw.description ||
         (existingAss.maxMarks !== cw.maxPoints && cw.maxPoints !== null) ||
-        (existingAss.dueDate && dueDateObj && existingAss.dueDate.getTime() !== dueDateObj.getTime());
+        (existingAss.dueDate && dueDateObj && existingAss.dueDate.getTime() !== dueDateObj.getTime()) ||
+        existingAss.submissionStatus !== cw.submissionState ||
+        existingAss.status !== (existingAss.status === "COMPLETED" ? "COMPLETED" : status);
 
       if (hasChanged) {
         await prisma.assignment.update({
@@ -386,15 +395,31 @@ export const syncGoogleClassroom = asyncHandler(async (req, res) => {
             dueTime: dueTimeStr,
             maxMarks: cw.maxPoints ? parseFloat(cw.maxPoints) : null,
             submissionStatus: cw.submissionState,
-            // Keep local status if manually overridden, otherwise update
             status: existingAss.status === "COMPLETED" ? "COMPLETED" : status
           }
         });
         syncedCount++;
+
+        // Send submission notification if newly submitted on Classroom
+        if (isNewlyCompleted) {
+          await NotificationService.notify({
+            userId,
+            type: "ASSIGNMENT_SUBMITTED",
+            title: "Classroom Assignment Submitted",
+            message: `"${cw.title}" for ${map.subject.name} has been marked as COMPLETED.`,
+            metadata: {
+              assignmentId: cw.id,
+              title: cw.title,
+              subjectName: map.subject.name,
+              subjectCode: map.subject.code,
+              link: "/assignments"
+            }
+          }).catch(err => console.error("Failed to dispatch submitted notification:", err));
+        }
       }
     } else {
       // Create new one
-      await prisma.assignment.create({
+      const newAss = await prisma.assignment.create({
         data: {
           title: cw.title,
           description: cw.description,
@@ -411,6 +436,23 @@ export const syncGoogleClassroom = asyncHandler(async (req, res) => {
         }
       });
       syncedCount++;
+
+      // Dispatch new assignment notification
+      await NotificationService.notify({
+        userId,
+        type: "ASSIGNMENT_CREATED",
+        title: "New Classroom Assignment",
+        message: `"${cw.title}" has been published in Google Classroom for ${map.subject.name}.`,
+        metadata: {
+          assignmentId: newAss.id,
+          title: cw.title,
+          dueDate: dueDateObj ? dueDateObj.toISOString().split("T")[0] : null,
+          dueTime: dueTimeStr,
+          subjectName: map.subject.name,
+          subjectCode: map.subject.code,
+          link: "/assignments"
+        }
+      }).catch(err => console.error("Failed to dispatch created notification:", err));
     }
   }
 
