@@ -168,7 +168,7 @@ export default function SemesterSetupWizard() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-between py-12 px-4 select-none">
-      <div className="max-w-[840px] w-full mx-auto bg-white border border-slate-200 shadow-sm rounded-xl p-8 md:p-10 flex flex-col justify-between min-h-[600px]">
+      <div className="max-w-[840px] w-full mx-auto bg-white border border-slate-200 shadow-sm rounded-xl p-4 sm:p-8 md:p-10 flex flex-col justify-between min-h-[600px]">
         <div>
           {/* Onboarding Header */}
           <div className="flex items-center gap-2 mb-8 select-none">

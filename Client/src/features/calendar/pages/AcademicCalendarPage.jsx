@@ -172,7 +172,7 @@ export function AcademicCalendarPage() {
               <button
                 key={cell.dateString}
                 onClick={() => setSelectedDay(cell)}
-                className={`aspect-square rounded-lg flex flex-col items-center justify-between p-1.5 border transition cursor-pointer ${
+                className={`aspect-square rounded-lg flex flex-col items-center justify-between p-1 sm:p-1.5 border transition cursor-pointer ${
                   isSelected ? "border-primary bg-primary/5" : getDayBlockColor(cell)
                 }`}
               >
