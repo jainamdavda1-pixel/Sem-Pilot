@@ -32,6 +32,7 @@ export const chatWithAI = asyncHandler(async (req, res) => {
     where: { userId },
     include: {
       holidays: true,
+      faculties: true,
       subjects: {
         include: {
           lectures: {
@@ -60,9 +61,15 @@ export const chatWithAI = asyncHandler(async (req, res) => {
   let contextText = "Semester Setup: Not completed yet. Prompt the student to import their syllabus or set up their classes.";
   
   if (semester) {
+    const targetReq = semester.attendanceRequirement;
+
     const holidaysText = semester.holidays.length > 0
       ? semester.holidays.map(h => `- ${h.title} on ${h.date.toISOString().split("T")[0]}${h.description ? ` (${h.description})` : ""}`).join("\n")
       : "No holidays logged.";
+
+    const facultiesText = semester.faculties && semester.faculties.length > 0
+      ? semester.faculties.map(f => `- ${f.name} (${f.designation || "Faculty"}), Department: ${f.department || "N/A"}${f.email ? `, Email: ${f.email}` : ""}${f.cabin ? `, Cabin: ${f.cabin}` : ""}`).join("\n")
+      : "No standalone faculty profiles logged.";
 
     const subjectsText = semester.subjects.map(sub => {
       const records = sub.attendanceRecords || [];
@@ -76,12 +83,34 @@ export const chatWithAI = asyncHandler(async (req, res) => {
       else if (sub.subjectPriority === 4) priorityLabel = "High";
       else if (sub.subjectPriority === 2) priorityLabel = "Low";
 
+      // Calculate skip margin safety or consecutive classes needed
+      let marginText = "";
+      if (total === 0) {
+        marginText = "No classes conducted yet. Attendance rate is 100% by default.";
+      } else {
+        const maxSkip = Math.floor((present * 100 / targetReq) - total);
+        if (maxSkip >= 0) {
+          marginText = `Safe to skip: You can skip ${maxSkip} class${maxSkip === 1 ? "" : "es"} safely without falling below ${targetReq}%.`;
+        } else {
+          const needed = Math.ceil((targetReq * total - 100 * present) / (100 - targetReq));
+          marginText = `Attendance Warning: You are short of attendance! You must attend the next ${needed} consecutive class${needed === 1 ? "" : "es"} to restore your attendance rate back to ${targetReq}%.`;
+        }
+      }
+
+      // Format individual logs for this subject
+      const logsList = records.length > 0
+        ? records.map(r => `    * Date: ${r.lectureDate.toISOString().split("T")[0]}, Status: ${r.status}${r.remarks ? `, Remarks: ${r.remarks}` : ""}`).join("\n")
+        : "    * No logs recorded yet.";
+
       return `- Subject: ${sub.name} (${sub.code})
   Credits: ${sub.credits || 3}
   Difficulty: ${sub.difficulty || "Medium"}
   Priority Strictness: ${priorityLabel}
   Attendance Rate: ${rate}% (${present} Present, ${absent} Absent, Total Conducted: ${total})
-  Required Target: ${semester.attendanceRequirement}%`;
+  Required Target: ${targetReq}%
+  Safety Skipping Margin: ${marginText}
+  Detailed Log History:
+${logsList}`;
     }).join("\n\n");
 
     const dayNameMapping = {
@@ -124,13 +153,17 @@ export const chatWithAI = asyncHandler(async (req, res) => {
         }).join("\n\n")
       : "No assignments or exams recorded.";
 
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' };
+    const formattedServerTime = new Date().toLocaleDateString('en-US', options);
+
     contextText = `
 Student profile: ${user?.name || "Student"}
+Current Reference Date & Time (IST): ${formattedServerTime}
 Semester Name: ${semester.name} (Academic Year: ${semester.academicYear})
 Active Semester Range: ${semester.startDate.toISOString().split("T")[0]} to ${semester.endDate.toISOString().split("T")[0]}
-Attendance Goal Requirement: ${semester.attendanceRequirement}%
+Attendance Goal Requirement: ${targetReq}%
 
-Academic Subjects & Attendance Status:
+Academic Subjects & Attendance Status (with detailed past logs):
 ${subjectsText}
 
 Timetable Weekly Schedule:
@@ -138,6 +171,9 @@ ${timetableText}
 
 Assignments & Exams:
 ${assignmentsText}
+
+Faculty Directory (Designation & Locations):
+${facultiesText}
 
 Holidays:
 ${holidaysText}
