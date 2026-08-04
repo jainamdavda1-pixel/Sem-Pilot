@@ -12,7 +12,7 @@ const isGoogleConfigured = () => {
 // Instantiate real oauth client if credentials exist
 const getOAuth2Client = (req) => {
   if (!isGoogleConfigured()) return null;
-  
+
   let redirectUri = process.env.GOOGLE_REDIRECT_URI;
   if (req) {
     const origin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : null);
@@ -62,9 +62,8 @@ export const getAuthUrl = asyncHandler(async (req, res) => {
   ];
 
   const url = oauth2.generateAuthUrl({
-    access_type: "offline",
-    scope: scopes,
-    prompt: "consent"
+    access_type: "online",
+    scope: scopes
   });
 
   return res.status(200).json(
