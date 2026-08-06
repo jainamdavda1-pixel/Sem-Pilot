@@ -16,6 +16,7 @@ app.use(cors({
     if (
       origin.startsWith('http://localhost:') ||
       origin.startsWith('http://127.0.0.1:') ||
+      origin.startsWith('chrome-extension://') ||
       origin.includes('.vercel.app') ||
       allowedOrigins.includes(origin)
     ) {

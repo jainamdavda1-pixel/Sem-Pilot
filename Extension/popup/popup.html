@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="extension-container">
+    
+    <!-- Top Nav Header -->
+    <div class="header">
+      <div class="logo-area">
+        <span class="logo-text">SemPilot</span>
+        <span class="logo-badge">Sync</span>
+      </div>
+      <div id="user-display" class="user-display">Verifying Session...</div>
+    </div>
+
+    <!-- Status Stats Block -->
+    <div class="status-panel">
+      <div class="status-row">
+        <span class="label">Last Synced:</span>
+        <span id="last-sync-time" class="val">Never</span>
+      </div>
+      <div class="status-row">
+        <span class="label">Imported Count:</span>
+        <span id="courses-count" class="val">0 items</span>
+      </div>
+    </div>
+
+    <!-- Central Interactive Action Buttons -->
+    <div class="actions">
+      <button id="btn-sync-courses" class="btn btn-secondary flex-center gap-2">
+        <span>🔄 Sync Courses List</span>
+      </button>
+      <button id="btn-sync-assignments" class="btn btn-primary flex-center gap-2">
+        <span>🚀 Import Coursework</span>
+      </button>
+    </div>
+
+    <!-- Developer console log -->
+    <div id="sync-console" class="sync-console hidden">
+      <div class="loader-circle"></div>
+      <span id="console-msg">Checking Google Classroom tab status...</span>
+    </div>
+
+    <!-- Footer auto sync switches -->
+    <div class="footer">
+      <label class="toggle-container">
+        <input type="checkbox" id="toggle-auto-sync">
+        <span class="slider"></span>
+        <span class="toggle-text">Enable Background Auto-Sync</span>
+      </label>
+    </div>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

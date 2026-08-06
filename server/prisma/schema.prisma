@@ -21,6 +21,9 @@ model User {
   notifications          Notification[]
   pushSubscriptions      PushSubscription[]
   notificationPreference NotificationPreference?
+  syncHistories          SyncHistory[]
+  chromeDevices          ChromeDevice[]
+  syncLogs               SyncLogs[]
 }
 
 model Semester {
@@ -225,4 +228,35 @@ model NotificationPreference {
   emailAI            Boolean  @default(true)
   emailAnnouncements Boolean  @default(true)
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SyncHistory {
+  id                     String    @id @default(cuid())
+  userId                 String
+  timestamp              DateTime  @default(now())
+  device                 String    // User Agent / Device Type
+  status                 String    // SUCCESS | FAILED
+  syncedAssignmentsCount Int       @default(0)
+  details                String?
+  user                   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChromeDevice {
+  id             String    @id @default(cuid())
+  userId         String
+  extensionId    String    // Generated client extension ID
+  browserName    String
+  lastActiveAt   DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SyncLogs {
+  id         String   @id @default(cuid())
+  userId     String
+  level      String   // INFO | WARNING | ERROR
+  module     String   // SCRAPER | INGESTION | PARSER
+  message    String
+  timestamp  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

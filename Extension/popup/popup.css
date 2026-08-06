@@ -1,0 +1,251 @@
+/* SemPilot Extension Panel Styling */
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  width: 320px;
+  margin: 0;
+  padding: 0;
+  background-color: #F8FAFC;
+  color: #1E293B;
+}
+
+.extension-container {
+  padding: 16px;
+}
+
+/* Header style matching SemPilot theme */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-b: 1px solid #E2E8F0;
+  margin-bottom: 12px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.logo-text {
+  font-size: 16px;
+  font-weight: 800;
+  color: #4F46E5;
+  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-badge {
+  font-size: 9px;
+  font-weight: 700;
+  background-color: #EEF2FF;
+  color: #4F46E5;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.user-display {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748B;
+  background-color: #F1F5F9;
+  padding: 3px 8px;
+  border-radius: 9999px;
+}
+
+.user-display.logged-in {
+  color: #10B981;
+  background-color: #ECFDF5;
+}
+
+/* Status Panel */
+.status-panel {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  padding: 4px 0;
+}
+
+.status-row:first-child {
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+}
+
+.status-row .label {
+  color: #64748B;
+  font-weight: 500;
+}
+
+.status-row .val {
+  font-weight: 700;
+  color: #334155;
+}
+
+/* Action buttons */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-primary {
+  background-color: #4F46E5;
+  color: #FFFFFF;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: #4338CA;
+}
+
+.btn-primary:disabled {
+  background-color: #CBD5E1;
+  color: #94A3B8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  color: #475569;
+}
+
+.btn-secondary:hover {
+  background-color: #F8FAFC;
+}
+
+.btn-secondary:disabled {
+  background-color: #F1F5F9;
+  color: #94A3B8;
+  cursor: not-allowed;
+}
+
+/* Sync Console Logger feedback */
+.sync-console {
+  background-color: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #3730A3;
+  margin-bottom: 16px;
+}
+
+.sync-console.error {
+  background-color: #FEF2F2;
+  border-color: #FCA5A5;
+  color: #991B1B;
+}
+
+.sync-console.success {
+  background-color: #ECFDF5;
+  border-color: #A7F3D0;
+  color: #065F46;
+}
+
+.sync-console.error .loader-circle,
+.sync-console.success .loader-circle {
+  display: none;
+}
+
+.loader-circle {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #C7D2FE;
+  border-top-color: #4F46E5;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Slider switch styles */
+.footer {
+  border-top: 1px solid #E2E8F0;
+  padding-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 10.5px;
+  color: #64748B;
+  font-weight: 500;
+  gap: 8px;
+  user-select: none;
+}
+
+.toggle-container input {
+  display: none;
+}
+
+.slider {
+  position: relative;
+  width: 28px;
+  height: 16px;
+  background-color: #CBD5E1;
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+input:checked + .slider {
+  background-color: #10B981;
+}
+
+input:checked + .slider:before {
+  transform: translate(12px);
+}
